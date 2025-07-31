@@ -65,6 +65,149 @@ def render_results(results, strategy_name: str, symbol: str, current_price: floa
             trend = market_analysis.get('trend', 'Neutral')
             st.info(f"**Tendencia:** {trend}")
     
+    # Conclusión y recomendación final
+    st.markdown("### 🎯 CONCLUSIÓN Y RECOMENDACIÓN FINAL")
+    
+    # Evaluación del timing
+    timing_score = 0
+    timing_factors = []
+    
+    if market_analysis:
+        trend = market_analysis.get('trend', 'Neutral')
+        rsi = market_analysis.get('rsi', 50)
+        volatility = market_analysis.get('volatility', 20)
+        
+        # Evaluar timing basado en tendencia y estrategia
+        if (strategy_name == "Call Debit Spread" and trend == "Uptrend"):
+            timing_score += 2
+            timing_factors.append("✅ Tendencia alcista favorable para Call Debit Spread")
+        elif (strategy_name == "Put Debit Spread" and trend == "Downtrend"):
+            timing_score += 2
+            timing_factors.append("✅ Tendencia bajista favorable para Put Debit Spread")
+        else:
+            timing_score -= 1
+            timing_factors.append("❌ Tendencia no óptima para la estrategia")
+        
+        # Evaluar RSI
+        if rsi > 70:
+            timing_score -= 1
+            timing_factors.append("❌ RSI sobrecomprado - posible corrección")
+        elif rsi < 30:
+            timing_score -= 1
+            timing_factors.append("❌ RSI sobrevendido - posible rebote")
+        else:
+            timing_score += 1
+            timing_factors.append("✅ RSI en rango normal")
+        
+        # Evaluar volatilidad
+        if volatility > 30:
+            timing_score += 1
+            timing_factors.append("✅ Alta volatilidad - bueno para opciones")
+        elif volatility < 15:
+            timing_score -= 1
+            timing_factors.append("❌ Baja volatilidad - primas baratas")
+    
+    # Riesgos identificados
+    risk_score = 0
+    risk_factors = []
+    
+    # Evaluar ratio riesgo/recompensa
+    risk_reward_ratio = results.max_profit / abs(results.max_loss) if results.max_loss != 0 else 0
+    if risk_reward_ratio >= 2.0:
+        risk_score += 2
+        risk_factors.append("✅ Excelente ratio R/R (≥2.0)")
+    elif risk_reward_ratio >= 1.5:
+        risk_score += 1
+        risk_factors.append("✅ Buen ratio R/R (≥1.5)")
+    elif risk_reward_ratio >= 1.0:
+        risk_score += 0
+        risk_factors.append("⚠️ Ratio R/R aceptable (≥1.0)")
+    else:
+        risk_score -= 1
+        risk_factors.append("❌ Ratio R/R pobre (<1.0)")
+    
+    # Evaluar probabilidad de ganancia
+    if results.profit_probability >= 60:
+        risk_score += 1
+        risk_factors.append("✅ Alta probabilidad de ganancia")
+    elif results.profit_probability >= 40:
+        risk_score += 0
+        risk_factors.append("⚠️ Probabilidad moderada")
+    else:
+        risk_score -= 1
+        risk_factors.append("❌ Baja probabilidad de ganancia")
+    
+    # Evaluar tamaño de la posición
+    max_loss_amount = abs(results.max_loss)
+    if max_loss_amount <= 100:
+        risk_score += 1
+        risk_factors.append("✅ Pérdida máxima controlada")
+    elif max_loss_amount <= 500:
+        risk_score += 0
+        risk_factors.append("⚠️ Pérdida máxima moderada")
+    else:
+        risk_score -= 1
+        risk_factors.append("❌ Pérdida máxima alta")
+    
+    # Recomendación final
+    total_score = timing_score + risk_score
+    recommendation = ""
+    justification = []
+    
+    if total_score >= 4:
+        recommendation = "✅ EJECUTAR"
+        justification.append("• Timing favorable y riesgos controlados")
+        justification.append("• Ratio riesgo/recompensa atractivo")
+        justification.append("• Condiciones de mercado óptimas")
+    elif total_score >= 2:
+        recommendation = "⚠️ EJECUTAR CON PRECAUCIÓN"
+        justification.append("• Algunos factores favorables")
+        justification.append("• Considerar ajustar parámetros")
+        justification.append("• Monitorear condiciones de mercado")
+    elif total_score >= 0:
+        recommendation = "⏸️ ESPERAR MEJORES CONDICIONES"
+        justification.append("• Timing no óptimo")
+        justification.append("• Riesgos moderados")
+        justification.append("• Considerar estrategia alternativa")
+    else:
+        recommendation = "❌ NO EJECUTAR"
+        justification.append("• Timing desfavorable")
+        justification.append("• Riesgos elevados")
+        justification.append("• Condiciones de mercado adversas")
+    
+    # Mostrar evaluación
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### 📊 Evaluación del Timing")
+        for factor in timing_factors:
+            st.write(factor)
+        st.metric("Puntuación Timing", f"{timing_score}/3")
+    
+    with col2:
+        st.markdown("#### ⚠️ Riesgos Identificados")
+        for factor in risk_factors:
+            st.write(factor)
+        st.metric("Puntuación Riesgo", f"{risk_score}/5")
+    
+    # Recomendación final
+    st.markdown("#### 🎯 Recomendación Final")
+    
+    if recommendation.startswith("✅"):
+        st.success(f"**{recommendation}**")
+    elif recommendation.startswith("⚠️"):
+        st.warning(f"**{recommendation}**")
+    elif recommendation.startswith("⏸️"):
+        st.info(f"**{recommendation}**")
+    else:
+        st.error(f"**{recommendation}**")
+    
+    st.markdown("**Justificación:**")
+    for point in justification:
+        st.write(point)
+    
+    st.metric("**Puntuación Total**", f"{total_score}/8")
+    
     # Instrucciones de ejecución
     with st.expander("📝 Instrucciones de Ejecución"):
         st.markdown(f"""

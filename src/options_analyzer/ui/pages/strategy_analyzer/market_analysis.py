@@ -252,8 +252,7 @@ def analyze_market_conditions(symbol: str, current_price: float):
             # Default case - should not happen but just in case
             best_strategy = "Call Debit Spread"
         
-        # Debug: Log strategy decision
-        print(f"DEBUG: Trend={trend}, RSI={rsi}, Strategy={best_strategy}")
+
         
         # Get additional market info
         info = ticker.info
