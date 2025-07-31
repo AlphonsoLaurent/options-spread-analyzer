@@ -1,0 +1,22 @@
+"""Application settings."""
+from pydantic import BaseSettings, Field
+from typing import Optional
+
+class Settings(BaseSettings):
+    app_name: str = "Options Spread Strategy Analyzer"
+    version: str = "1.0.0"
+    debug: bool = Field(False, env="DEBUG")
+    database_url: str = Field("sqlite:///./options_data.db", env="DATABASE_URL")
+    alpha_vantage_key: Optional[str] = Field(None, env="ALPHA_VANTAGE_KEY")
+    polygon_api_key: Optional[str] = Field(None, env="POLYGON_API_KEY")
+    default_portfolio_value: float = Field(100000.0, env="DEFAULT_PORTFOLIO_VALUE")
+    commission_per_trade: float = Field(1.0, env="COMMISSION_PER_TRADE")
+    page_title: str = "Options Strategy Analyzer"
+    page_icon: str = "📊"
+    layout: str = "wide"
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+
+settings = Settings()

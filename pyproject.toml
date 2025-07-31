@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "options-spread-analyzer"
+version = "1.0.0"
+description = "Advanced Options Spread Strategy Analyzer"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+
+dependencies = [
+    "streamlit>=1.32.0",
+    "plotly>=5.18.0", 
+    "pandas>=2.1.0",
+    "numpy>=1.24.0",
+    "yfinance>=0.2.22",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.5.0",
+    "scipy>=1.11.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.4.0",
+    "mypy>=1.8.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = ["-ra", "--strict-markers", "--cov=options_analyzer"]
