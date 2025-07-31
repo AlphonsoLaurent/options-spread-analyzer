@@ -238,15 +238,19 @@ def analyze_market_conditions(symbol: str, current_price: float):
             'price_vs_sma50': round((current_price / sma_50 - 1) * 100, 1)
         }
         
-        # Determine best strategy - Solo Call Debit Spread y Put Debit Spread
-        if trend == "Uptrend" and rsi < 70:
-            best_strategy = "Call Debit Spread"
-        elif trend == "Downtrend" and rsi > 30:
-            best_strategy = "Put Debit Spread"
-        elif trend == "Sideways" and rsi > 50:
-            best_strategy = "Call Debit Spread"
+        # Determine best strategy based on trend - only Call Debit Spread and Put Debit Spread
+        if trend == "Uptrend":
+            best_strategy = "Call Debit Spread"  # Bullish - benefits from price increases
+        elif trend == "Downtrend":
+            best_strategy = "Put Debit Spread"  # Bearish - benefits from price decreases
+        elif trend == "Sideways":
+            if rsi > 50:
+                best_strategy = "Call Debit Spread"  # Slightly bullish bias
+            else:
+                best_strategy = "Put Debit Spread"  # Slightly bearish bias
         else:
-            best_strategy = "Put Debit Spread"
+            # Default case - should not happen but just in case
+            best_strategy = "Call Debit Spread"
         
         # Get additional market info
         info = ticker.info

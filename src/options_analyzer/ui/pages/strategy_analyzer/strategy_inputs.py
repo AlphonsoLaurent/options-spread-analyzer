@@ -162,4 +162,6 @@ def get_strategy_inputs(strategy_name: str, current_price: float, context: str =
             'risk_levels': risk_levels, 'expiration_date': expiration_date
         }
     
- 
+    else:
+        st.error(f"❌ Estrategia '{strategy_name}' no soportada aún")
+        return None
